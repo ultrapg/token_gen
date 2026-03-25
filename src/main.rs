@@ -13,7 +13,7 @@ enum Algorithm {
 }
 
 #[derive(Parser)]
-#[command(name = "TokenGen", about = "Generiert riesige Tokens mit Fortschrittsanzeige")]
+#[command(name = "TokenGen", about = "generates tokens-/keyfiles with no real strenght limit")]
 struct Cli {
     #[arg(short, long, default_value_t = 1024)]
     bits: usize,
@@ -29,17 +29,14 @@ fn main() -> std::io::Result<()> {
     let cli = Cli::parse();
 
     let total_bytes = (cli.bits + 7) / 8;
-    // Wir verarbeiten den Token in 8KB Stücken, um RAM zu sparen
     let chunk_size = 8192; 
     let mut bytes_processed = 0;
 
-    // Progress Bar Setup
     let pb = ProgressBar::new(total_bytes as u64);
     pb.set_style(ProgressStyle::with_template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})")
         .unwrap()
         .progress_chars("#>-"));
 
-    // Output Ziel: Datei oder Standard-Ausgabe
     let mut writer: Box<dyn Write> = if let Some(path) = cli.output {
         Box::new(BufWriter::new(File::create(path)?))
     } else {
@@ -66,7 +63,7 @@ fn main() -> std::io::Result<()> {
         pb.set_position(bytes_processed as u64);
     }
 
-    pb.finish_with_message("Fertig!");
+    pb.finish_with_message("Finished!");
     writer.flush()?;
 
     Ok(())
